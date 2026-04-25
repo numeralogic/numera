@@ -1,96 +1,127 @@
-# Numera — Seni Menalar Matematika
+# Numera — Fase 1: Auth & Fondasi
 
-Landing Page minimalis untuk platform belajar matematika **Numera**.  
-Dibangun dengan **React + Vite + Tailwind CSS**, siap deploy ke Vercel.
+## Yang sudah dibangun di Fase ini
+
+- Landing page lengkap (Hero, Filosofi, Kurikulum, CTA)
+- Modal login / register / lupa password yang elegan
+- Login dengan Google OAuth
+- Supabase Auth terintegrasi (email & password sungguhan)
+- Dashboard siswa post-login
+- Halaman reset password
+- Row Level Security (RLS) — data tiap user terisolasi
+- Auto-create profil saat user baru daftar (via database trigger)
 
 ---
 
-## Struktur Proyek
+## Setup Step-by-Step (Tanpa Terminal)
+
+### LANGKAH 1 — Buat Akun & Project Supabase
+
+1. Buka **supabase.com** → klik **Start your project** → daftar gratis
+2. Klik **New Project**
+3. Isi nama project: `numera`
+4. Isi database password (simpan, jangan hilang)
+5. Pilih region: **Southeast Asia (Singapore)**
+6. Klik **Create new project** → tunggu ~2 menit
+
+### LANGKAH 2 — Jalankan SQL Setup
+
+1. Di sidebar Supabase, klik **SQL Editor**
+2. Klik **New query**
+3. Buka file `supabase-setup.sql` dari folder ini
+4. Copy semua isinya → paste ke SQL Editor
+5. Klik **Run** (tombol hijau)
+6. Pastikan muncul tulisan "Success"
+
+### LANGKAH 3 — Aktifkan Email Auth
+
+1. Di sidebar Supabase, klik **Authentication**
+2. Klik tab **Providers**
+3. Pastikan **Email** sudah toggle ON (default sudah aktif)
+4. Scroll ke bawah, cek **"Confirm email"** — boleh ON atau OFF untuk testing
+
+### LANGKAH 4 — (Opsional) Aktifkan Google Login
+
+1. Di **Authentication > Providers**, klik **Google**
+2. Toggle ON
+3. Ikuti panduan di sana untuk dapat Client ID & Secret dari Google Cloud Console
+4. Paste dan Save
+
+### LANGKAH 5 — Ambil API Keys
+
+1. Di sidebar Supabase, klik **Project Settings** (ikon gear)
+2. Klik **API**
+3. Copy dua nilai ini:
+   - **Project URL** → bentuknya `https://xxxx.supabase.co`
+   - **anon public** key → string panjang dimulai `eyJ...`
+
+### LANGKAH 6 — Konfigurasi Environment Variables di Vercel
+
+Kalau deploy via **GitHub + Vercel**:
+1. Di Vercel dashboard → project Numera → **Settings** → **Environment Variables**
+2. Tambahkan dua variable:
+   - `VITE_SUPABASE_URL` = Project URL dari langkah 5
+   - `VITE_SUPABASE_ANON_KEY` = anon key dari langkah 5
+3. Klik **Save**
+4. Pergi ke **Deployments** → **Redeploy**
+
+Kalau testing **lokal**:
+1. Duplikat file `.env.example` → rename menjadi `.env`
+2. Isi nilai dari langkah 5
+3. Jalankan `npm install && npm run dev`
+
+### LANGKAH 7 — Tambahkan URL ke Supabase Allowlist
+
+Setelah deploy dan dapat URL Vercel (misal `https://numera.vercel.app`):
+1. Di Supabase → **Authentication** → **URL Configuration**
+2. **Site URL**: masukkan URL Vercel kamu
+3. **Redirect URLs**: tambahkan `https://numera.vercel.app/**`
+4. Klik **Save**
+
+---
+
+## Struktur File
 
 ```
-numera/
-├── public/
-│   └── favicon.svg
+numera-fase1/
 ├── src/
-│   ├── App.jsx          # Komponen utama SPA (semua sections)
-│   ├── index.css        # Global styles + Tailwind directives
-│   └── main.jsx         # Entry point
-├── index.html           # Root HTML
-├── package.json
-├── tailwind.config.js
-├── postcss.config.js
-├── vite.config.js
-└── vercel.json          # SPA routing + cache headers
+│   ├── lib/
+│   │   ├── supabase.js      ← Supabase client
+│   │   └── auth.js          ← Semua fungsi auth
+│   ├── components/
+│   │   ├── AuthModal.jsx    ← Modal login/register/forgot
+│   │   └── Spinner.jsx      ← Loading spinner
+│   ├── pages/
+│   │   ├── Landing.jsx      ← Landing page
+│   │   ├── Dashboard.jsx    ← Dashboard siswa
+│   │   └── ResetPassword.jsx← Halaman reset password
+│   ├── App.jsx              ← Root router + auth state
+│   ├── main.jsx             ← Entry point
+│   └── index.css            ← Global styles
+├── supabase-setup.sql       ← SQL untuk dijalankan di Supabase
+├── .env.example             ← Template environment variables
+├── vercel.json              ← Config deploy Vercel
+└── package.json
 ```
 
 ---
 
-## Setup Lokal
+## Demo Cepat (Setelah Setup)
 
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Jalankan dev server
-npm run dev
-
-# 3. Build untuk produksi
-npm run build
-
-# 4. Preview build
-npm run preview
-```
+1. Buka URL Vercel → klik **Mulai Perjalanan**
+2. Daftar dengan email sungguhan
+3. Cek inbox → klik link konfirmasi (jika email confirm aktif)
+4. Login → masuk ke Dashboard
+5. Cek **Supabase > Table Editor > users** → data kamu sudah tersimpan
 
 ---
 
-## Deploy ke Vercel
+## Checklist Fase 1
 
-### Via GitHub (Rekomendasi)
-
-1. Push folder ini ke repository GitHub baru
-2. Masuk ke [vercel.com](https://vercel.com) → **New Project**
-3. Import repository GitHub tersebut
-4. Vercel otomatis mendeteksi Vite — klik **Deploy**
-5. Selesai ✓
-
-### Via Vercel CLI
-
-```bash
-npm i -g vercel
-vercel --prod
-```
-
----
-
-## Demo Login
-
-| Field    | Value              |
-|----------|--------------------|
-| Email    | siswa@numera.id    |
-| Password | numera2024         |
-
-Sesi disimpan di `localStorage` dengan key `numera_session`.
-
----
-
-## Konten Sections
-
-| Section          | Deskripsi                                      |
-|------------------|------------------------------------------------|
-| Navbar           | Logo + nav links + tombol Login Siswa          |
-| Hero             | Headline, subheadline, CTA button              |
-| Filosofi 80:20   | Penjelasan prinsip nalar vs. hitung            |
-| Kurikulum        | 5 kartu fase: Fondasi → Aljabar → ... Kalkulus |
-| CTA Band         | Ajakan bergabung dengan tombol sekunder        |
-| Footer           | Copyright minimal                              |
-
----
-
-## Teknologi
-
-- **React 18** + **Vite 5**
-- **Tailwind CSS 3**
-- **DM Sans** (body) + **Playfair Display** (serif heading)
-- Zero external UI library — murni Tailwind + inline styles
-- `IntersectionObserver` untuk scroll animations
-- `localStorage` untuk sesi login semu
+- [ ] Akun Supabase dibuat
+- [ ] SQL dijalankan (tabel users + trigger + RLS)
+- [ ] Email Auth aktif
+- [ ] API keys disalin
+- [ ] Environment variables diisi di Vercel
+- [ ] Deploy berhasil
+- [ ] Test register & login berhasil

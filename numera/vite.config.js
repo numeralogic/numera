@@ -5,11 +5,11 @@ export default defineConfig({
   plugins: [react()],
   build: {
     target: 'es2015',
-    minify: 'terser',
     rollupOptions: {
       output: {
         manualChunks: {
           react: ['react', 'react-dom'],
+          supabase: ['@supabase/supabase-js'],
         },
       },
     },
